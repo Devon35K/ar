@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mp_color_primary">#007AFF</color>
+    <color name="mp_color_primary_dark">#0056b3</color>
+    <color name="mp_color_error">#FF3B30</color>
+</resources>
