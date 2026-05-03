@@ -3,7 +3,7 @@
 
     <uses-feature android:name="android.hardware.camera.any" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera.ar" android:required="true" />
+    <uses-feature android:name="android.hardware.camera.ar" android:required="false" />
 
 
     <application
@@ -12,7 +12,7 @@
         android:icon="@mipmap/ic_launcher">
         <meta-data 
             android:name="com.google.ar.core" 
-            android:value="required" 
+            android:value="optional" 
             tools:replace="android:value" />
 
         <activity

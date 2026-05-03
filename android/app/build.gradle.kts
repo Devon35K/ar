@@ -52,8 +52,6 @@ dependencies {
     implementation("androidx.camera:camera-view:1.4.2")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     
-    // ARCore & SceneView
-    implementation("com.google.ar:core:1.47.0")
-    implementation("io.github.sceneview:arsceneview:2.2.1")
+    // Lifecycle
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
 }

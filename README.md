@@ -9,7 +9,7 @@
 > **University of Southeastern Philippines — ICE 323 Professional Elective 3**  
 > **April 2026**
 
-An augmented reality mobile game where you physically cast spells using hand gestures to destroy falling 3D pixel-art meteors in real space. Built with **Flutter**, **ARCore/SceneView**, and **MediaPipe** hand tracking.
+An augmented reality mobile game where you physically cast spells using hand gestures to destroy falling 3D pixel-art meteors in real space. Built with **Flutter**, **CameraX**, and **MediaPipe** hand tracking. Unlike traditional AR games, this project uses a custom **Pseudo-AR** engine that works on all modern Android devices, including those without official ARCore support.
 
 ---
 
@@ -46,9 +46,9 @@ AR Motion Smasher is an **augmented reality game** that combines physical moveme
 | Layer | Technology |
 |-------|------------|
 | Framework | Flutter 3.11+ |
-| AR Engine | ARCore 1.47 + SceneView 2.2.1 |
+| AR Engine | Custom Pseudo-AR (via CameraSpaceScanner) |
 | Hand Tracking | Google MediaPipe Tasks Vision |
-| 3D Rendering | Filament (via SceneView) |
+| 3D Rendering | Flutter Custom Graphics & Animations |
 | Backend | Flask + Python (optional, for prototyping) |
 
 ---
@@ -77,40 +77,31 @@ Earth's orbit has been breached by a rogue asteroid belt from beyond the Rift. Y
 
 ---
 
-## AR Features
+## AR Features (Pseudo-AR Implementation)
 
-### ARCore Integration
-This app uses **Google ARCore** via **SceneView** for robust augmented reality:
+### Custom Camera Space Scanner
+This app uses a custom computer-vision-based scanner instead of Google ARCore, making it compatible with a wider range of devices:
 
-#### Plane Detection
-- **Horizontal planes**: Detects floors, tables, and flat surfaces
-- **Real-time visualization**: Visual planes appear as you scan your environment
-- **Automatic sizing**: Planes expand as more of the surface is discovered
+#### Environment Analysis
+- **Motion Detection**: Analyzes pixel changes between frames to detect movement in the user's environment.
+- **Edge Detection**: Uses gradient analysis to find detail-rich areas for better spatial anchoring.
+- **Virtual Grid**: Divides the camera feed into a grid (8x8) to map out high-confidence zones.
 
-#### Hit Testing
-- **Ray casting**: Tap anywhere on screen to cast a ray into AR space
-- **Surface intersection**: Finds exact 3D position on detected planes
-- **Depth-based placement**: Objects anchor realistically to surfaces
+#### Simulated Depth
+- **Heuristic Mapping**: Objects are placed with simulated depth based on their vertical position in the frame (lower = "closer").
+- **Dynamic Spawning**: Meteors spawn in "spawn zones" identified by the scanner as having sufficient environmental detail.
 
-#### Anchors
-- **Persistent positioning**: Anchors maintain position as device moves
-- **World-locked**: Meteors stay in real-world locations
-- **Session-stable**: Anchors survive device rotation and movement
+#### Persistence
+- **Hand-Centric Coordinates**: Tracking is relative to the user's camera view, ensuring consistent gameplay even as the device moves.
 
-#### Augmented Images
-- **Image tracking**: Detect and track specific images in the environment
-- **Marker-based triggers**: Special images can spawn unique meteors or events
-- **Database-driven**: Configure multiple target images
-
-### AR Scene Implementation
+### Pseudo-AR Scene Implementation
 ```
-ARSceneView
-├── ARCore Session (configured for plane detection + image tracking)
-├── Plane Renderer (shows detected surfaces)
-├── Light Estimation (realistic lighting on virtual objects)
-├── Hand Tracking Overlay (MediaPipe results rendered in 3D)
-├── Meteor System (anchors attached to detected planes)
-└── Spell Effects (particle systems in world space)
+CameraView (Standard CameraX)
+├── MediaPipe Hand Tracking (21 Landmarks)
+├── CameraSpaceScanner (Motion + Edge Analysis)
+├── Virtual Spawn Zones (Mapped Grid)
+├── Meteor System (Pseudo-3D Projection)
+└── Spell Effects (Flutter Animated Overlays)
 ```
 
 ---
@@ -160,14 +151,13 @@ maxNumHands = 1
 ┌──────────────────────────▼──────────────────────────────────┐
 │                     Android Native                           │
 │  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐   │
-│  │ ARSceneView    │  │ MediaPipe      │  │ Game Logic     │   │
-│  │ (SceneView/    │  │ Hand Tracking  │  │ (Kotlin)       │   │
-│  │  ARCore)       │  │ (Task Vision)  │  │                │   │
+│  │ CameraX View   │  │ MediaPipe      │  │ Game Logic     │   │
+│  │ (PreviewView)  │  │ Hand Tracking  │  │ (Kotlin)       │   │
 │  └────────────────┘  └────────────────┘  └────────────────┘   │
 │                                                              │
 │  ┌────────────────┐  ┌────────────────┐                    │
-│  │ Plane Detection│  │ 3D Models      │                    │
-│  │ Hit Testing    │  │ (Filament)     │                    │
+│  │ Space Scanner  │  │ Camera Overlay │                    │
+│  │ (Custom CV)    │  │ (Native Canvas)│                    │
 │  └────────────────┘  └────────────────┘                    │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -178,10 +168,10 @@ maxNumHands = 1
 | File | Responsibility |
 |------|---------------|
 | `MainActivity.kt` | Flutter engine setup, permission handling |
-| `ArSceneView.kt` | ARCore session, plane detection, hit testing |
-| `MyCameraView.kt` | Hand tracking via MediaPipe, gesture recognition |
+| `CameraSpaceScanner.kt` | Custom environment analysis (no ARCore) |
+| `MyCameraView.kt` | CameraX feed + Space scanning integration |
 | `GestureRecognizerHelper.kt` | MediaPipe Tasks Vision wrapper |
-| `OverlayView.kt` | Custom canvas drawing for debug/overlay |
+| `OverlayView.kt` | Custom canvas drawing for debug/scanning |
 
 #### Flutter (Dart)
 | File | Responsibility |
@@ -246,17 +236,17 @@ Every destroyed meteor has a chance to drop a letter:
 ar/
 ├── android/
 │   └── app/src/main/kotlin/com/example/ar/
-│       ├── MainActivity.kt           # Flutter entry, AR scene registration
-│       ├── ArSceneView.kt            # ARCore + SceneView implementation
-│       ├── MyCameraView.kt           # MediaPipe hand tracking
+│       ├── MainActivity.kt           # Flutter entry, scene registration
+│       ├── CameraSpaceScanner.kt     # Custom environment analysis
+│       ├── MyCameraView.kt           # CameraX + scanning integration
 │       ├── GestureRecognizerHelper.kt  # MediaPipe Tasks wrapper
 │       ├── MyCameraViewFactory.kt    # Platform view factory
-│       └── OverlayView.kt            # Debug overlay canvas
+│       └── OverlayView.kt            # Scanning visualization canvas
 │
 ├── lib/
 │   ├── main.dart                     # App entry, fullscreen
 │   ├── landing_page.dart             # Story landing screen
-│   └── my_camera_view.dart           # AR + hand tracking widget
+│   └── my_camera_view.dart           # Pseudo-AR + tracking widget
 │
 ├── android/app/src/main/assets/
 │   └── gesture_recognizer.task      # MediaPipe model file
@@ -329,9 +319,8 @@ Academic Project — University of Southeastern Philippines
 
 ## Acknowledgments
 
-- **Google ARCore** for spatial computing capabilities
-- **SceneView** for simplifying ARCore development
 - **MediaPipe** for on-device hand tracking
+- **CameraX** for reliable camera access
 - **Flutter** for cross-platform UI framework
 
 ---
