@@ -43,7 +43,7 @@ class MyCameraView(
     private var overlayView: OverlayView = OverlayView(context, null)
 
     private var backgroundExecutor: ExecutorService = Executors.newSingleThreadExecutor()
-    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
+    private var cameraFacing = CameraSelector.LENS_FACING_BACK
     private var imageAnalyzer: ImageAnalysis? = null
     private var preview: Preview? = null
     private var camera: Camera? = null

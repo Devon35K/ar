@@ -166,48 +166,6 @@ class MyCameraViewState extends State<MyCameraView> {
             ),
           ),
 
-        // HUD Layer (Only visible when calibrated)
-        if (_isCalibrated)
-          Positioned(
-            top: 20,
-            left: 20,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                border: Border.all(
-                  color: Colors.cyanAccent.withValues(alpha: 0.5),
-                ),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Row(
-                children: [
-                  Icon(
-                    Icons.wifi_tethering,
-                    color: Colors.cyanAccent,
-                    size: 14,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    "WARDEN LINK: ACTIVE",
-                    style: TextStyle(color: Colors.cyanAccent, fontSize: 10),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-        // Switch Camera Button
-        if (_isCalibrated)
-          Positioned(
-            bottom: 20,
-            right: 20,
-            child: FloatingActionButton(
-              backgroundColor: Colors.blue.withValues(alpha: 0.7),
-              onPressed: switchCamera,
-              child: const Icon(Icons.flip_camera_android, color: Colors.white),
-            ),
-          ),
       ],
     );
   }
